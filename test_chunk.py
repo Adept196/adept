@@ -13,7 +13,7 @@ class TestChunk:
 	def test_data(self):
 		chunk = Chunk(100,100)
 		assert chunk.data is not None
-		assert len(chunk.data) is 32 and len(chunk.data[0]) is 32
+		assert len(chunk.data) is Chunk.CHUNK_HEIGHT and len(chunk.data[0]) is Chunk.CHUNK_WIDTH
 
 	def test_pos(self):
 		chunk = Chunk(100,100)
