@@ -4,6 +4,8 @@ from noise import snoise3
 from PIL import Image
 from biome import Biome
 
+import chunk
+
 """
 Class that generates tile data for the world map with a given seed.
 The generation algorithm uses Perlin noise to generate maps for both altitude and moisture.
@@ -18,8 +20,8 @@ location / size of the requested chunks.
 
 class MapGenerator:
 
-    chunkSizeX = 32
-    chunkSizeY = 32
+    chunkSizeX = chunk.Chunk.CHUNK_WIDTH
+    chunkSizeY = chunk.Chunk.CHUNK_HEIGHT
 
     @staticmethod
     def GenerateMap(seed, startx, starty, sizex, sizey):

@@ -5,6 +5,11 @@ import pygame
 from buffalo import utils
 from buffalo.label import Label
 
+import tile
+import mapManager
+import biome
+
+
 """
 A Chunk is a data structure
 that holds tiles.
@@ -15,9 +20,8 @@ class Chunk:
     CHUNK_HEIGHT and CHUNK_WIDTH represent
     the size, in tiles, of each Chunk
     """
-    CHUNK_HEIGHT, CHUNK_WIDTH = 32, 32
-    TILE_SIZE                 = 32     # TILE_SIZE represents the tile size, in pixels, when
-                                       # Camera.zoom = 1.0
+    CHUNK_HEIGHT, CHUNK_WIDTH = 8, 8
+    TILE_SIZE                 = tile.Tile.TILE_SIZE
 
     LOADED_SURFACES = dict()
 
@@ -36,21 +40,22 @@ class Chunk:
                     dictionary self.defs, returns an RGBA 4-tuple
         """
         self.path = None
-        for m in MapManager.maps:
+        for m in mapManager.MapManager.maps:
             search_path_list = m.pathlist + ["chunks", "{0},{1}.chunk".format(x, y)]
             search_path_string = os.path.join(*search_path_list)
             if search_path_string in m.chunk_files:
                 self.pathlist = search_path_list
                 self.path = search_path_string
                 break
-        self.pos = x,y
+        self.pos = x, y
         self.defs = dict()
         self.data = [["" for _x in range(Chunk.CHUNK_WIDTH)] for _y in range(Chunk.CHUNK_HEIGHT)]
+        self.tiles = list()
         if self.path is None:
-            self.data = MapGenerator.GenerateChunk(0, self.pos[0], self.pos[1])
-            self.defs = Biome.GenerateBiomeDefs()
+            self.data = mapGenerator.MapGenerator.GenerateChunk(0, self.pos[0], self.pos[1])
+            self.defs = biome.Biome.GenerateBiomeDefs()
             self.toFile()
-        self.fromFile(x,y)
+        self.fromFile(x, y)
         if not from_other_thread:
             self.create_and_render_surface()
 
@@ -90,11 +95,11 @@ class Chunk:
 
     def generateDataAndDefs(self):
         x,y = self.pos
-        self.data = MapGenerator.GenerateChunk(self.seed,x,y)
-        self.defs = Biome.GenerateBiomeDefs()
+        self.data = mapGenerator.MapGenerator.GenerateChunk(self.seed,x,y)
+        self.defs = biome.Biome.GenerateBiomeDefs()
         self.toFile()
 
-    def fromFile(self,x,y):
+    def fromFile(self, x, y):
         """
         This method loads a chunk from a file.
         The chunk is specified by coordinates, <x> and <y>,
@@ -139,15 +144,23 @@ class Chunk:
                         for col, key in enumerate(splitted):
                             if col < Chunk.CHUNK_WIDTH and row < Chunk.CHUNK_HEIGHT:
                                 self.data[row][col] = key
+                                self.tiles.append(
+                                    tile.Tile(
+                                        pos=(col * Chunk.TILE_SIZE, row * Chunk.TILE_SIZE, 0),
+                                        base_color=(self.defs[key]),
+                                        type_id=key,
+                                        use_images=True,
+                                    )
+                                )
 
                         row += 1 # And remember to keep track of the row!
         #print str(self.pos)
         #print self.data
 
     def render(self):
-        for y, row in enumerate(self.data):
-            for x, col in enumerate(row):
-                if col in self.defs.keys():
+#        for y, row in enumerate(self.data):
+#            for x, col in enumerate(row):
+#                if col in self.defs.keys():
                     #Image/Texture Based Rendering
                     #self.surface.blit(
                     #    Chunk.loadSurfaceForId(col),
@@ -155,13 +168,15 @@ class Chunk:
                     #)
 
                     #Color Based Rendering
-                    self.surface.fill(
-                        self.defs[col],
-                        pygame.Rect(
-                            (x * Chunk.TILE_SIZE, y * Chunk.TILE_SIZE),
-                            (Chunk.TILE_SIZE, Chunk.TILE_SIZE),
-                        )
-                    )
+                    #self.surface.fill(
+                    #    self.defs[col],
+                    #    pygame.Rect(
+                    #        (x * Chunk.TILE_SIZE, y * Chunk.TILE_SIZE),
+                    #        (Chunk.TILE_SIZE, Chunk.TILE_SIZE),
+                    #    )
+                    #)
+        for _tile_ in self.tiles:
+            _tile_.blit(self.surface)
 #        self.label.blit(self.surface)
 
     def blit(self, dest, pos):
@@ -178,7 +193,7 @@ class Chunk:
         """
 
         # Create a URL that's dependent on platform
-        LOAD_PATH = MapManager.BASE_PATH + [MapManager.activeMap.name, "chunks"]
+        LOAD_PATH = mapManager.MapManager.BASE_PATH + [mapManager.MapManager.activeMap.name, "chunks"]
         url = os.path.join(*list(LOAD_PATH + [str(self.pos[0]) + "," + str(self.pos[1]) + ".chunk"]))
 
         #Opens file in overwrite / file creation mode
@@ -205,6 +220,6 @@ class Chunk:
                     chunkFile.write(str(col) + " ")
                 chunkFile.write("\n") #New line at end of each row
 
-from mapManager import MapManager
-from mapGenerator import MapGenerator
-from biome import Biome
+        self.path = url
+
+import mapGenerator

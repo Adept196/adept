@@ -67,8 +67,8 @@ class Camera:
         actualx = Camera.fPos[0] + utils.SCREEN_W / 2
         actualy = Camera.fPos[1] + utils.SCREEN_H / 2
         coords = MapManager.get_chunk_coords((actualx, actualy))
-        for rowindx in range(coords[1] - 2, coords[1] + 3):
-            for colindx in range(coords[0] - 2, coords[0] + 3):
+        for rowindx in range(coords[1] + MapManager.HARD_LOAD_TOP, coords[1] + MapManager.HARD_LOAD_BOTTOM + 1):
+            for colindx in range(coords[0] + MapManager.HARD_LOAD_LEFT, coords[0] + MapManager.HARD_LOAD_RIGHT + 1):
                 if not (colindx, rowindx) in MapManager.loaded_chunks.keys():
                     continue
                 if not hasattr(MapManager.loaded_chunks[(colindx, rowindx)], 'surface'):

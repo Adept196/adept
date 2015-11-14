@@ -1,12 +1,12 @@
 import os, re
 
-from mapManager import MapManager
+import mapManager
 
 class Map:
     def __init__(self, name, BASE_PATH_LIST):
         self.name = name
         self.BASE_PATH_LIST = BASE_PATH_LIST
-        self.pathlist = MapManager.BASE_PATH + [self.name,]
+        self.pathlist = mapManager.MapManager.BASE_PATH + [self.name,]
         self.path = os.path.join(*self.pathlist)
         self.precedence = 0
         self.seed = 0
@@ -18,7 +18,7 @@ class Map:
                 os.makedirs(os.path.dirname(path))
             with open(path, 'w+') as pfile:
                 pass
-        with open(os.path.join(*list(MapManager.BASE_PATH + [self.name, "properties.txt"]))) as mfile:
+        with open(os.path.join(*list(mapManager.MapManager.BASE_PATH + [self.name, "properties.txt"]))) as mfile:
             for line in mfile:
                 words = line.split()
                 if len(words) >= 2:

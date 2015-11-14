@@ -5,6 +5,10 @@ from Queue import Queue
 
 from buffalo import utils
 
+import Map
+import pluginManager
+import chunk
+
 class MapManager:
     """
     Manages chunks and map loading
@@ -20,12 +24,17 @@ class MapManager:
     loaded_chunks = dict()
     lru_chunks    = dict()  # least recently used chunks
 
+    HARD_LOAD_LEFT   = -5
+    HARD_LOAD_RIGHT  =  5
+    HARD_LOAD_TOP    = -5
+    HARD_LOAD_BOTTOM =  5
+
     @staticmethod
     def loadMaps():
         """
         loadMaps loads all the maps that are checked in the plugins manager file
         """
-        for name in PluginManager.mapNames:
+        for name in pluginManager.PluginManager.mapNames:
             MapManager.loadMap(name)
         MapManager.maps.sort(key=lambda m: m.precedence)
         MapManager.activeMap = MapManager.maps[0]
@@ -34,27 +43,27 @@ class MapManager:
         MapManager.soft_load_writer_queue = Queue()
 
     @staticmethod
-    def loadMap( map_name ):
+    def loadMap(map_name):
         """
         loadMap takes one string map_name and attempts to load the corresponding map
         """
         CHUNK_PATH_LIST = MapManager.BASE_PATH + [map_name, "chunks"]
-        MapManager.maps.append(Map(map_name, CHUNK_PATH_LIST))
+        MapManager.maps.append(Map.Map(map_name, CHUNK_PATH_LIST))
 
     @staticmethod
     def get_chunk_coords(world_pos):
         return (
-            int(world_pos[0] / (Chunk.CHUNK_WIDTH * Chunk.TILE_SIZE)),
-            int(world_pos[1] / (Chunk.CHUNK_HEIGHT * Chunk.TILE_SIZE)),
+            int(world_pos[0] / (chunk.Chunk.CHUNK_WIDTH * chunk.Chunk.TILE_SIZE)),
+            int(world_pos[1] / (chunk.Chunk.CHUNK_HEIGHT * chunk.Chunk.TILE_SIZE)),
         )
 
     @staticmethod
     def hard_load(world_pos):
         x, y = MapManager.get_chunk_coords(world_pos)
-        for j in range(y - 2, y + 3):
-            for i in range(x - 2, x + 3):
+        for j in range(y + MapManager.HARD_LOAD_TOP, y + MapManager.HARD_LOAD_BOTTOM + 1):
+            for i in range(x + MapManager.HARD_LOAD_LEFT, x + MapManager.HARD_LOAD_RIGHT + 1):
                 if (i, j) not in MapManager.loaded_chunks.keys():
-                    MapManager.loaded_chunks[(i, j)] = Chunk(i, j)
+                    MapManager.loaded_chunks[(i, j)] = chunk.Chunk(i, j)
                     MapManager.lru_chunks[(i, j)] = 2
         if hasattr(MapManager, 'soft_load_reader_thread'):
             MapManager.soft_load_reader_thread.join()
@@ -66,17 +75,17 @@ class MapManager:
     @staticmethod
     def soft_load(world_pos):
         x, y = MapManager.get_chunk_coords(world_pos)
-        for j in range(y - 3, y + 4): # sides
-            for i in range(x - 3, x - 2) + range(x + 3, x + 4):
-                #MapManager.loaded_chunks[(i, j)] = Chunk(i, j)
+        for j in range(y + MapManager.HARD_LOAD_TOP, y + MapManager.HARD_LOAD_BOTTOM + 1): # sides
+            for i in range(x + MapManager.HARD_LOAD_LEFT - 1, x + MapManager.HARD_LOAD_LEFT) + range(x + MapManager.HARD_LOAD_RIGHT + 1, x + MapManager.HARD_LOAD_RIGHT + 2):
+                #MapManager.loaded_chunks[(i, j)] = chunk.Chunk(i, j)
                 if (i, j) not in MapManager.loaded_chunks:
-                    package = ((x, y), (i, j), Chunk(i, j, from_other_thread=False), 0) # zero means create surface,  means render
+                    package = ((x, y), (i, j), chunk.Chunk(i, j, from_other_thread=False), 0) # zero means create surface,  means render
                     MapManager.soft_load_writer_queue.put(package)
-        for j in range(y - 3, y - 2) + range(y + 3, y + 4): # top and bottom
-            for i in range(x - 3, x + 4): 
-                #MapManager.loaded_chunks[(i, j)] = Chunk(i, j)
+        for j in range(y + MapManager.HARD_LOAD_TOP - 1, y + MapManager.HARD_LOAD_TOP) + range(y + MapManager.HARD_LOAD_BOTTOM + 1, y + MapManager.HARD_LOAD_BOTTOM + 2): # top and bottom
+            for i in range(x + MapManager.HARD_LOAD_LEFT - 1, x + MapManager.HARD_LOAD_RIGHT + 2): 
+                #MapManager.loaded_chunks[(i, j)] = chunk.Chunk(i, j)
                 if (i, j) not in MapManager.loaded_chunks:
-                    package = ((x, y), (i, j), Chunk(i, j, from_other_thread=False), 0) # zero means create surface,  means render
+                    package = ((x, y), (i, j), chunk.Chunk(i, j, from_other_thread=False), 0) # zero means create surface,  means render
                     MapManager.soft_load_writer_queue.put(package)
 
     @staticmethod
@@ -116,7 +125,7 @@ class MapManager:
                 MapManager.lru_chunks[pos] = 1
             x, y = coords
             for i, j in MapManager.loaded_chunks.keys():
-                if i < x - 3 or i > x + 3 or j < y - 3 or j > y + 3:
+                if i < x + MapManager.HARD_LOAD_LEFT or i > x + MapManager.HARD_LOAD_RIGHT or j < y + MapManager.HARD_LOAD_TOP or j > y + MapManager.HARD_LOAD_BOTTOM:
                     # these  are really far away chunks that can be offloaded if necessary
                     MapManager.lru_chunks[i, j] = 0
             #### LRU STUFF
@@ -132,7 +141,3 @@ class MapManager:
         soft_load_reader_thread = Thread(target=MapManager.soft_load_reader)
         soft_load_reader_thread.daemon = True
         return soft_load_reader_thread
-
-from Map import Map
-from pluginManager import PluginManager
-from chunk import Chunk

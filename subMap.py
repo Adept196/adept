@@ -1,8 +1,10 @@
-from serializable import Serializable
-from mapManager import MapManager
+import os
+import copy
+import time
+
 from buffalo import utils
 
-import os, time, copy
+import mapManager
 
 class SubMap:
 
@@ -19,7 +21,7 @@ class SubMap:
         self.render(startingZ)        
 
     def toFile(self):
-        LOAD_PATH = MapManager.BASE_PATH + [MapManager.activeMap.name] + SubMap.PATH
+        LOAD_PATH = mapManager.MapManager.BASE_PATH + [mapManager.MapManager.activeMap.name] + SubMap.PATH
         url = os.path.join(*list(LOAD_PATH + [str(self.id) + '.smap']))
 
         output = ""
@@ -32,7 +34,7 @@ class SubMap:
 
     def fromFile(self):
         from tile import Tile
-        LOAD_PATH = MapManager.BASE_PATH + [MapManager.activeMap.name] + SubMap.PATH
+        LOAD_PATH = mapManager.MapManager.BASE_PATH + [mapManager.MapManager.activeMap.name] + SubMap.PATH
         url = os.path.join(*list(LOAD_PATH + [str(self.id) + '.smap']))
         if not os.path.isfile(url):
             print "Error: Tried to load SubMap with id \"" + str(self.id) + "\", but could not find the file."

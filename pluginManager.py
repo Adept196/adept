@@ -1,5 +1,7 @@
 import os
 
+import mapManager
+
 class PluginManager:
     """
     Manages which plugins are loaded.
@@ -25,6 +27,4 @@ class PluginManager:
                 if len(words) >= 2:
                     if words[0] == "map":
                         PluginManager.mapNames.append(words[1])
-        MapManager.loadMaps()
-        
-from mapManager import MapManager
+        mapManager.MapManager.loadMaps()
