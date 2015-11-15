@@ -64,12 +64,14 @@ class EditMapTestScene(Scene):
 
     def blit(self):
         Camera.blitView()
+        ToolManager.blit()
 
     def update(self):
         super(EditMapTestScene, self).update()
         keys = pygame.key.get_pressed()
         self.camera_controller.update(keys)
         Camera.update()
+        ToolManager.update(self.mouse_buttons, self.mouse_pos, self.click_pos, self.trays)
         MapManager.soft_load_writer()
 
     def __init__(self):

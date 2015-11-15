@@ -1,3 +1,12 @@
+import pygame
+
+from buffalo import utils
+
+import tile
+import chunk
+import camera
+import mapManager
+
 class ToolManager(object):
     
     # DEFINE CONSTANTS
@@ -12,6 +21,41 @@ class ToolManager(object):
 
     func_state   = None
     effect_state = None
+
+    tiles = dict()
+
+    @staticmethod
+    def blit():
+        for (chcx, chcy), (tcx, tcy) in ToolManager.tiles.keys():
+            cx, cy = camera.Camera.pos
+            tx, ty = (chcx * chunk.Chunk.CHUNK_WIDTH + tcx) * tile.Tile.TILE_SIZE, (chcy * chunk.Chunk.CHUNK_HEIGHT + tcy) * tile.Tile.TILE_SIZE
+            utils.screen.blit(
+                ToolManager.tiles[(chcx, chcy), (tcx, tcy)],
+                (tx - cx, ty - cy),
+            )
+
+    @staticmethod
+    def update(mouse_buttons, mouse_pos, click_pos, trays):
+        if ToolManager.func_state == ToolManager.FUNC_SELECT:
+            if ToolManager.effect_state == ToolManager.EFFECT_DRAW:
+                if mouse_buttons[0] and not any([tray.contains(mouse_pos) for tray in trays]):
+                    mwx, mwy = (mouse_pos[0] + camera.Camera.pos[0], mouse_pos[1] + camera.Camera.pos[1])
+                    cx, cy = chunk_coords = mapManager.MapManager.get_chunk_coords((mwx, mwy))
+                    tile_coords = (
+                        int((mwx - cx * chunk.Chunk.CHUNK_WIDTH * tile.Tile.TILE_SIZE) / tile.Tile.TILE_SIZE),
+                        int((mwy - cy * chunk.Chunk.CHUNK_HEIGHT * tile.Tile.TILE_SIZE) / tile.Tile.TILE_SIZE),
+                    )
+                    ToolManager.tiles[(chunk_coords, tile_coords)] = utils.empty_surface(
+                        (tile.Tile.TILE_SIZE, tile.Tile.TILE_SIZE)
+                    )
+                    ToolManager.tiles[(chunk_coords, tile_coords)].fill((75, 75, 255, 100))
+            elif ToolManager.effect_state == ToolManager.EFFECT_AREA:
+                pass
+        elif ToolManager.func_state == ToolManager.FUNC_FILL:
+            if ToolManager.effect_state == ToolManager.EFFECT_DRAW:
+                pass
+            elif ToolManager.effect_state == ToolManager.EFFECT_AREA:
+                pass
 
     @staticmethod
     def verify_state(func_state, effect_state):
