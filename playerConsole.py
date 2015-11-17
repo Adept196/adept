@@ -1,4 +1,4 @@
-from tray import Tray
+from buffalo.tray import Tray
 from buffalo import utils
 from itertools import chain
 import pygame
@@ -54,7 +54,7 @@ class PlayerConsole:
     @staticmethod
     def render():
         totalHeight = 0
-        PlayerConsole.tray.update()
+        #PlayerConsole.tray.update()
         texts = list()
         for textMessage in reversed(PlayerConsole.TEXT_EVENTS):
             myfont = pygame.font.SysFont("monospace", 15)

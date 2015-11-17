@@ -45,12 +45,32 @@ class ToolManager(object):
                         int((mwx - cx * chunk.Chunk.CHUNK_WIDTH * tile.Tile.TILE_SIZE) / tile.Tile.TILE_SIZE),
                         int((mwy - cy * chunk.Chunk.CHUNK_HEIGHT * tile.Tile.TILE_SIZE) / tile.Tile.TILE_SIZE),
                     )
-                    ToolManager.tiles[(chunk_coords, tile_coords)] = utils.empty_surface(
-                        (tile.Tile.TILE_SIZE, tile.Tile.TILE_SIZE)
-                    )
-                    ToolManager.tiles[(chunk_coords, tile_coords)].fill((75, 75, 255, 100))
+                    if (chunk_coords, tile_coords) not in ToolManager.tiles.keys():
+                        ToolManager.tiles[(chunk_coords, tile_coords)] = utils.empty_surface(
+                            (tile.Tile.TILE_SIZE, tile.Tile.TILE_SIZE)
+                        )
+                        ToolManager.tiles[(chunk_coords, tile_coords)].fill((75, 255, 75, 225))
+                        ToolManager.tiles[(chunk_coords, tile_coords)].fill((75, 255, 75, 150), pygame.Rect(1, 1, tile.Tile.TILE_SIZE - 2, tile.Tile.TILE_SIZE - 2))
             elif ToolManager.effect_state == ToolManager.EFFECT_AREA:
-                pass
+                if mouse_buttons[0] and not any([tray.contains(mouse_pos) for tray in trays]):
+                    ToolManager.tiles = dict()
+                    mwx, mwy = (mouse_pos[0] + camera.Camera.pos[0], mouse_pos[1] + camera.Camera.pos[1])
+                    cmwx, cmwy = (click_pos[0] + camera.Camera.pos[0], click_pos[1] + camera.Camera.pos[1])
+                    x_delta = tile.Tile.TILE_SIZE if mwx > cmwx else -tile.Tile.TILE_SIZE
+                    y_delta = tile.Tile.TILE_SIZE if mwy > cmwy else -tile.Tile.TILE_SIZE
+                    for y_val in range(cmwy, mwy + y_delta - (mwy % y_delta), y_delta):
+                        for x_val in range(cmwx, mwx + x_delta - (mwx % x_delta), x_delta):
+                            cx, cy = chunk_coords = mapManager.MapManager.get_chunk_coords((x_val, y_val))
+                            tile_coords = (
+                                int((x_val - cx * chunk.Chunk.CHUNK_WIDTH * tile.Tile.TILE_SIZE) / tile.Tile.TILE_SIZE),
+                                int((y_val - cy * chunk.Chunk.CHUNK_HEIGHT * tile.Tile.TILE_SIZE) / tile.Tile.TILE_SIZE),
+                            )
+                            if (chunk_coords, tile_coords) not in ToolManager.tiles.keys():
+                                ToolManager.tiles[(chunk_coords, tile_coords)] = utils.empty_surface(
+                                    (tile.Tile.TILE_SIZE, tile.Tile.TILE_SIZE)
+                                )
+                            ToolManager.tiles[(chunk_coords, tile_coords)].fill((75, 255, 75, 225))
+                            ToolManager.tiles[(chunk_coords, tile_coords)].fill((75, 255, 75, 150), pygame.Rect(1, 1, tile.Tile.TILE_SIZE - 2, tile.Tile.TILE_SIZE - 2))
         elif ToolManager.func_state == ToolManager.FUNC_FILL:
             if ToolManager.effect_state == ToolManager.EFFECT_DRAW:
                 pass
@@ -70,6 +90,7 @@ class ToolManager(object):
 
     @staticmethod
     def set_func_state(other_state):
+        ToolManager.tiles = dict()
         ToolManager.verify_state(other_state, ToolManager.effect_state)
         ToolManager.func_state = other_state
         if ToolManager.func_state == ToolManager.FUNC_FILL:
@@ -85,6 +106,7 @@ class ToolManager(object):
 
     @staticmethod
     def set_effect_state(other_state):
+        ToolManager.tiles = dict()
         ToolManager.verify_state(ToolManager.func_state, other_state)
         ToolManager.effect_state = other_state
         if ToolManager.effect_state == ToolManager.EFFECT_AREA:
