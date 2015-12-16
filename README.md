@@ -9,7 +9,7 @@ This project depends on lots of Python packages. If you install these packages, 
 * [Pyyaml](http://pyyaml.org/)
 * [noise](https://pypi.python.org/pypi/noise/)
 
-I highly recommend installing all of them via [pip](https://pip.pypa.io/en/stable/), except Pygame. **Adept is only guarunteed to run bug-free if Pygame is installed from [source](https://bitbucket.org/pygame/pygame/src).**
+I highly recommend installing all of them via [pip](https://pip.pypa.io/en/stable/), except Pygame. **Adept is only guaranteed to run bug-free if Pygame is installed from [source](https://bitbucket.org/pygame/pygame/src).**
 
 ## Installation and Use
 
