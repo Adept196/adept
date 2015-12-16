@@ -11,6 +11,8 @@ This project depends on lots of Python packages. If you install these packages, 
 
 I highly recommend installing all of them via [pip](https://pip.pypa.io/en/stable/), except Pygame. **Adept is only guaranteed to run bug-free if Pygame is installed from [source](https://bitbucket.org/pygame/pygame/src).**
 
+Adept is only guaranteed to run on **Python 2.7.**
+
 ## Installation and Use
 
 * Clone the repository
@@ -27,7 +29,7 @@ On this branch, you'll find every feature discussed in the video *except* multit
 
 ```python main.py```
 
-If you want to take a look our chunk rework and the current state of the editor, you can checkout a different branch.
+If you want to take a look at our chunk rework and the current state of the editor, you can checkout a different branch.
 
 * Checkout the `editor-draw-and-select-tool` branch
 
@@ -40,22 +42,22 @@ Both the editor and the example game exhibit the effects of a reworked chunk sys
 We learned many things from this project. Some of the biggest were
 
 * Coding best practices
-..* Unit tests (we used [nose](https://nose.readthedocs.org/en/latest/))
-..* Continuous integration (we used [Travis-CI](https://travis-ci.org/))
-..* GitHub branching/merging best practices
-..* How to actually do code reviews
-..* It's not a good idea to put EVERY FILE IN THE SAME FOLDER
-..* It's never a good idea to `git add -A`
+  * Unit tests (we used [nose](https://nose.readthedocs.org/en/latest/))
+  * Continuous integration (we used [Travis-CI](https://travis-ci.org/))
+  * GitHub branching/merging best practices
+  * How to actually do code reviews
+  * It's not a good idea to put EVERY FILE IN THE SAME FOLDER
+  * It's never a good idea to `git add -A`
 * Making things go fast
-..* Multithreading
-..* High-level memory management (which data structure? etc)
+  * Multithreading
+  * High-level memory management (which data structure? etc)
 * Making things cross-platform
-..* Python
+  * Python
 * Using team/organization technologies
-..* Slack
-..* Trello
-..* GitHub
-..* Travis-CI
+  * Slack
+  * Trello
+  * GitHub
+  * Travis-CI
 
 ## Authors
 
