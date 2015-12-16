@@ -1,6 +1,17 @@
 # Adept
-Under construction.
 
-# License
+This is a final project for CS 196 at UIUC.
 
-This project is licensed under The MIT License. However, please notify the authors (you can email one of them at tdfisch2 at illinois dot edu) before copying this project.
+To actually run our code, take a look at the [develop branch](https://github.com/Adept196/adept/tree/develop). Scroll down to the README when you get there.
+
+# Contributors
+
+Thomas Fischer
+
+Benjamin Congdon
+
+Han Song Huang
+
+Sean Duffy
+
+We also received ample guidance and mentorship from Sebastian Conybeare
